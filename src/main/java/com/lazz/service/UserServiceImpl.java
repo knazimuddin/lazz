@@ -2,6 +2,7 @@ package com.lazz.service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -210,7 +211,7 @@ public class UserServiceImpl implements UsersService{
 	 					for(ProdCfg prodCfgLoop : userGroupLoop.getProdCfgs()) {
 	 						if( prodCfgLoop.getPrdPriceRuleses() == null || 
 	 								prodCfgLoop.getPrdPriceRuleses().size() == 0 ) {
-	 							Set<PrdPriceRules> prdPriceRulesSet = new HashSet<PrdPriceRules>();
+	 							Set<PrdPriceRules> prdPriceRulesSet = new LinkedHashSet<PrdPriceRules>();
 	 							
 	 							PrdPriceRules prdPriceRules = new PrdPriceRules();
 	 							prdPriceRules.setPrdPrcRuleCarton(15);
@@ -237,7 +238,7 @@ public class UserServiceImpl implements UsersService{
 	 							prdPriceRulesSet.add(prdPriceRules);
 	 							
 	 							prdPriceRules = new PrdPriceRules();
-	 							prdPriceRules.setPrdPrcRuleCarton(3);
+	 							prdPriceRules.setPrdPrcRuleCarton(1);
 	 							prdPriceRules.setPrdPrcRulePriceEast(0F);
 	 							prdPriceRules.setPrdPrcRulePriceWest(0F);
 	 							prdPriceRulesSet.add(prdPriceRules);

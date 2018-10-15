@@ -829,6 +829,48 @@
 				swal(nameProduct, "is added to wishlist !", "success");
 			});
 		});
+		function refreshCart(){
+			var json = { "prdId" : "1"};
+			$.ajax({
+		        url: "/lazz/product/refresh-cart",
+		        headers: { 
+			        'Accept': 'application/json',
+			        'Content-Type': 'application/json' 
+			    },
+		       	data: JSON.stringify(json),
+		        type: "POST",
+		        contentType: 'application/json',
+  				mimeType: 'application/json',
+		        success: function(ajaxResponseModel) {
+		        	console.log(JSON.stringify(ajaxResponseModel))
+		        	if( ajaxResponseModel.statusCode == "200" ){
+		        		//TODO: need add message that product added successfully
+		        		$("#noti-icon").html(ajaxResponseModel.productCount);
+		        		
+		        		var ulObj = $("<ul class='header-cart-wrapitem'>");
+		        		for( x in ajaxResponseModel.productsModelList ){
+		        			$(ulObj).append("<li class='header-cart-item'>"+
+		        			"<div class='header-cart-item-img'><img src='/static/images/item-cart-01.jpg' alt='IMG'></div>"+
+		        			"<div class='header-cart-item-txt'>" +
+		        			"<a href='#' class='header-cart-item-name'>"+ajaxResponseModel.productsModelList[x].prdName+""+
+		        			"<span class='header-cart-item-info'>"+ajaxResponseModel.productsModelList[x].count+""+
+		        			" X RM "+ajaxResponseModel.productsModelList[x].prdRetailPrice+"</span></div></li>");
+		        		}
+		        		$(ulObj).append("<div class='header-cart-total'>Total: RM "+ajaxResponseModel.totalAmount+"</div>"+
+		        		"<div class='header-cart-buttons'><div class='header-cart-wrapbtn'>"+
+		        		"<a href='/lazz/product/view-cart' class='flex-c-m size1 bg1 bo-rad-20 hov1 s-text1 trans-0-4'>View Cart</a></div>"+
+		        		"<div class='header-cart-wrapbtn'><a href='/lazz/product/view-cart' class='flex-c-m size1 bg1 bo-rad-20 hov1 s-text1 trans-0-4'>"+
+		        		"Check Out</a></div></div>");
+		        		$("#products-cart").empty();
+		        		$("#products-cart").append(ulObj);
+		        	} 
+		        },
+		        error:function(data,status,er) { 
+			        console.log("error: "+data+" status: "+status+" er:"+er);
+			    }
+		    });
+		}
+		refreshCart();
 	</script>
 
 	<!--===============================================================================================-->

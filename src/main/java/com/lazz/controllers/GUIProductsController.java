@@ -15,6 +15,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -60,8 +61,8 @@ public class GUIProductsController {
 	@RequestMapping(value="/add-to-cart", method=RequestMethod.POST, 
 			produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-    public AjaxResponseModel addToCart(@ModelAttribute("productmodel")ProductsModel productsModel, 
-    	      BindingResult result, ModelMap model, HttpServletRequest request) {
+    public AjaxResponseModel addToCart(@RequestBody ProductsModel productsModel, 
+    	      HttpServletRequest request) {
 		AjaxResponseModel ajaxResponseModel = new AjaxResponseModel();
 		Products product = productService.getProduct(productsModel.getPrdId().toString());
 		ProductsModel newProductsModel = new ProductsModel().convertDomainToModel(product);
@@ -88,9 +89,36 @@ public class GUIProductsController {
 		return ajaxResponseModel;
 	}
 	
+	//refresh-cart
+	@RequestMapping(value="/refresh-cart", method=RequestMethod.POST, 
+			produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+    public AjaxResponseModel refreshCart(@RequestBody ProductsModel productsModel, 
+    	      HttpServletRequest request) {
+		AjaxResponseModel ajaxResponseModel = new AjaxResponseModel();
+		HttpSession session = request.getSession(true);
+		List<ProductsModel> prodList = (ArrayList<ProductsModel>)session.getAttribute(AppConstants.PRD_CART_LIST);
+		ajaxResponseModel.setStatusCode(AppConstants.VALID_CODE);
+		ajaxResponseModel.setStatusMessage(AppConstants.VALID);
+		ajaxResponseModel.setProductCount(prodList != null && !prodList.isEmpty() ? String.valueOf(prodList.size()) : "0");
+		
+		float totalAmt = 0.0F;
+		if( prodList != null && !prodList.isEmpty()  ) {
+			for( ProductsModel productModelLoop :  prodList) {
+				totalAmt += productModelLoop.getPrdRetailPrice()*Float.valueOf(productModelLoop.getCount());
+			}
+		}
+		ajaxResponseModel.setProductsModelList(prodList);
+		ajaxResponseModel.setTotalAmount(totalAmt);
+		
+		return ajaxResponseModel;
+	}
+	
 	@RequestMapping(value = { "/view-cart" }, method = RequestMethod.GET)
     public String guiDislayCart(ModelMap model, 
     		HttpServletRequest request) {
+		List<ValueO> paymentOptions = new ArrayList<ValueO>(0);
+		List<ValueO> shippingAddressList = new ArrayList<ValueO>(0);
 		CartWrapper cart = new CartWrapper();
 		float subTotal = 0.0F;
 		float totalAmt = 0.0F;
@@ -110,15 +138,19 @@ public class GUIProductsController {
 			ValueO valueO = new ValueO();
 			valueO.setKey("1");
 			valueO.setValue(StringUtils.prepareAddress(user));
-			cart.getShippingAddressList().add(valueO);
+			shippingAddressList.add(valueO);
+			cart.setSelectedAddress("1");
 		}
 		ValueO valueO = new ValueO();
 		valueO.setKey("1");
 		valueO.setValue(AppConstants.PAYMENT_CASH_ON_DELIVERY);
-		cart.getPaymentOptions().add(valueO);
+		paymentOptions.add(valueO);
 		cart.setProducts(productsModelList);
+		cart.setPaymentOptionSelected("NONE");
 		
 		model.addAttribute("cartwrapper",cart);
+		model.addAttribute("paymentOptions", paymentOptions);
+		model.addAttribute("shippingAddressList", shippingAddressList);
         return "cart";
     }
 	
@@ -126,6 +158,8 @@ public class GUIProductsController {
 	public String guiDeleteProductFromCart(ModelMap model, 
     		HttpServletRequest request, @PathVariable(value = "prdId") String prdId, 
     		@ModelAttribute("cartwrappermodel")CartWrapper cart) {
+		List<ValueO> paymentOptions = new ArrayList<ValueO>(0);
+		List<ValueO> shippingAddressList = new ArrayList<ValueO>(0);
 		float subTotal = 0.0F;
 		float totalAmt = 0.0F;
 		
@@ -152,14 +186,15 @@ public class GUIProductsController {
 			ValueO valueO = new ValueO();
 			valueO.setKey("1");
 			valueO.setValue(StringUtils.prepareAddress(user));
-			cart.getShippingAddressList().add(valueO);
+			shippingAddressList.add(valueO);
 		}
 		ValueO valueO = new ValueO();
 		valueO.setKey("1");
 		valueO.setValue(AppConstants.PAYMENT_CASH_ON_DELIVERY);
-		cart.getPaymentOptions().add(valueO);
+		paymentOptions.add(valueO);
 		cart.setProducts(productsModelList);
-		
+		model.addAttribute("paymentOptions", paymentOptions);
+		model.addAttribute("shippingAddressList", shippingAddressList);
 		model.addAttribute("cartwrapper",cart);
         return "cart";
 	}
@@ -168,6 +203,8 @@ public class GUIProductsController {
 	public String guiDecrementProductCount(ModelMap model, 
     		HttpServletRequest request, @PathVariable(value = "prdId") String prdId, 
     		@ModelAttribute("cartwrappermodel")CartWrapper cart) {
+		List<ValueO> paymentOptions = new ArrayList<ValueO>(0);
+		List<ValueO> shippingAddressList = new ArrayList<ValueO>(0);
 		float subTotal = 0.0F;
 		float totalAmt = 0.0F;
 		
@@ -197,16 +234,17 @@ public class GUIProductsController {
 			ValueO valueO = new ValueO();
 			valueO.setKey("1");
 			valueO.setValue(StringUtils.prepareAddress(user));
-			cart.getShippingAddressList().add(valueO);
+			shippingAddressList.add(valueO);
 		} else {
 			
 		}
 		ValueO valueO = new ValueO();
 		valueO.setKey("1");
 		valueO.setValue(AppConstants.PAYMENT_CASH_ON_DELIVERY);
-		cart.getPaymentOptions().add(valueO);
+		paymentOptions.add(valueO);
 		cart.setProducts(productsModelList);
-		
+		model.addAttribute("paymentOptions", paymentOptions);
+		model.addAttribute("shippingAddressList", shippingAddressList);
 		model.addAttribute("cartwrapper",cart);
         return "cart";
 	}
@@ -215,6 +253,8 @@ public class GUIProductsController {
 	public String guiIncrementProductCount(ModelMap model, 
     		HttpServletRequest request, @PathVariable(value = "prdId") String prdId, 
     		@ModelAttribute("cartwrappermodel")CartWrapper cart) {
+		List<ValueO> paymentOptions = new ArrayList<ValueO>(0);
+		List<ValueO> shippingAddressList = new ArrayList<ValueO>(0);
 		float subTotal = 0.0F;
 		float totalAmt = 0.0F;
 		
@@ -225,7 +265,7 @@ public class GUIProductsController {
 			ProductsModel productsLoop = productItr.next();
 			if( productsLoop.getPrdId().toString().equals(prdId) ) {
 				int count = Integer.parseInt(productsLoop.getCount());
-				productsLoop.setCount(String.valueOf(count+11));
+				productsLoop.setCount(String.valueOf(count+1));
 				break;
 			}
 		}
@@ -242,14 +282,15 @@ public class GUIProductsController {
 			ValueO valueO = new ValueO();
 			valueO.setKey("1");
 			valueO.setValue(StringUtils.prepareAddress(user));
-			cart.getShippingAddressList().add(valueO);
+			shippingAddressList.add(valueO);
 		}
 		ValueO valueO = new ValueO();
 		valueO.setKey("1");
 		valueO.setValue(AppConstants.PAYMENT_CASH_ON_DELIVERY);
-		cart.getPaymentOptions().add(valueO);
+		paymentOptions.add(valueO);
 		cart.setProducts(productsModelList);
-		
+		model.addAttribute("paymentOptions", paymentOptions);
+		model.addAttribute("shippingAddressList", shippingAddressList);
 		model.addAttribute("cartwrapper",cart);
         return "cart";
 	}
@@ -257,7 +298,7 @@ public class GUIProductsController {
 	@RequestMapping(value = { "/checkout" }, method = RequestMethod.POST)
 	public String guiCheckout(ModelMap model, 
     		HttpServletRequest request, 
-    		@ModelAttribute("cartwrappermodel")CartWrapper cart) {
+    		@ModelAttribute("cartwrapper")CartWrapper cart) {
 		HttpSession session = request.getSession(true);
 		Users user = (Users)session.getAttribute(AppConstants.USER_SESSION);
 		if( user != null && cart.getTotal() > 0) {
@@ -277,7 +318,11 @@ public class GUIProductsController {
 			invoice.setInvcAmt(cart.getTotal());
 			invoice.setInvcDis(0F);
 			invoice.setInvSubAmt(cart.getSubTotal());
-			invoice.setPaymentType(Integer.valueOf(cart.getPaymentOptionSelected()));
+			try {
+				invoice.setPaymentType(Integer.valueOf(cart.getPaymentOptionSelected()));
+			}catch(Exception e) {
+				System.out.println(" >> This exception is due to missing validation in the UI to ensure payment and shipment option selected before checkout... ");
+			}
 			
 			//set invoice details here 
 			if( cart.getProducts() != null && cart.getProducts().size()>0 ) {
@@ -293,7 +338,7 @@ public class GUIProductsController {
 				}
 			}
 			productService.saveOrUpdateInvoice(invoice);
-			
+			session.removeAttribute(AppConstants.PRD_CART_LIST);
 		} else {
 			//login first
 		}

@@ -13,6 +13,11 @@ public class GenericDAOImpl implements GenericDAO{
 	public void merge(Object obj) {
 		sessionFactory.getCurrentSession().merge(obj);
 	}
+
+	@Override
+	public void delete(Object obj) {
+		sessionFactory.getCurrentSession().delete(obj);
+	}
 	
 	
 }

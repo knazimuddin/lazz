@@ -202,7 +202,7 @@ public class ProductsModel  {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Products other = (Products) obj;
+		ProductsModel other = (ProductsModel) obj;
 		if (prdId == null) {
 			if (other.getPrdId() != null)
 				return false;

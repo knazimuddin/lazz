@@ -1,14 +1,17 @@
 package com.lazz.service.domain;
 // Generated Jul 22, 2018 7:33:01 PM by Hibernate Tools 5.2.10.Final
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import static javax.persistence.GenerationType.IDENTITY;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -65,7 +68,7 @@ public class Invoice implements java.io.Serializable {
 		this.invcDt = invcDt;
 	}
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "usr_id")
 	public Users getUsrId() {
 		return this.usrId;
@@ -84,7 +87,7 @@ public class Invoice implements java.io.Serializable {
 		this.invcStage = invcStage;
 	}
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "invc_accpt_by")
 	public Users getInvcAccptBy() {
 		return this.invcAccptBy;
@@ -187,7 +190,7 @@ public class Invoice implements java.io.Serializable {
 		this.invcDis = invcDis;
 	}
 
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "invoice")
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "invoice", cascade=CascadeType.ALL)
 	public Set<InvoiceDetails> getInvoiceDetailses() {
 		return this.invoiceDetailses;
 	}

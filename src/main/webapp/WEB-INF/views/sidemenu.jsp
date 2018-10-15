@@ -58,7 +58,7 @@
          </li>
          <li class="xn-title">Sales</li>
          <li>
-             <a href="sales-orders.html">
+             <a href="<c:url value='/admin/invoice/invoices'/>">
                  <span class="fa fa-file-text-o"></span> Orders</a>
          </li>
          <li class="xn-title">

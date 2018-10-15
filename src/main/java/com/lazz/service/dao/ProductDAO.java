@@ -31,4 +31,6 @@ public interface ProductDAO {
 	public List<Products> findProductsForGUIUsers();
 	
 	public List<Products> findProductsForUsrGroup(String userGrpId);
+	
+	public void deleteAllProdCfg(List<ProdCfg> prodCfgsList);
 }

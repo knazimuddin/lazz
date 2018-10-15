@@ -11,6 +11,7 @@ import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.lazz.service.domain.PrdPriceRules;
 import com.lazz.service.domain.ProdCfg;
 import com.lazz.service.domain.Products;
 import com.lazz.utils.AppConstants;
@@ -148,6 +149,20 @@ public class ProductDAOImpl implements ProductDAO {
 		}
 		
 		return productsList;
+	}
+
+	@Override
+	public void deleteAllProdCfg(List<ProdCfg> prodCfgsList) {
+		Session hibernateSession  = sessionFactory.getCurrentSession();
+		for(ProdCfg prdCfg : prodCfgsList  ) {
+			if( prdCfg.getPrdPriceRuleses() != null && 
+					prdCfg.getPrdPriceRuleses().size() > 0 ) {
+				for( PrdPriceRules prdPriceRules : prdCfg.getPrdPriceRuleses() ) {
+					hibernateSession.delete(prdPriceRules);
+				}
+			}
+			hibernateSession.delete(prdCfg);
+		}
 	}
 
 }

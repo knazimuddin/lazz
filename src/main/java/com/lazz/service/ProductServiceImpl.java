@@ -3,6 +3,7 @@ package com.lazz.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -125,10 +126,46 @@ public class ProductServiceImpl implements ProductService{
 			}
 		}
 		
-		if( prodCfgs.size() > 0  ) {
-			productDAO.deleteAllProdCfg();
+		List<ProdCfg> dbPrdCfgs = getProdCfgs();
+		
+		if( (prodCfgs != null && prodCfgs.size() > 0)  && 
+				(dbPrdCfgs == null || dbPrdCfgs.size() == 0)	) {//no data in the database
 			productDAO.saveAllProdCfgs(prodCfgs);
+		} else if ( (prodCfgs == null || prodCfgs.size() == 0)  && 
+				(dbPrdCfgs != null && dbPrdCfgs.size() > 0) ) {//data is only in database
+			productDAO.deleteAllProdCfg(dbPrdCfgs);
+		} else if( (prodCfgs != null && prodCfgs.size() > 0)  && 
+				(dbPrdCfgs != null && dbPrdCfgs.size() > 0) ){
+			//step1 : ignore the objects unaltered
+			Iterator<ProdCfg> newProdCfgItr = prodCfgs.iterator();
+			while( newProdCfgItr.hasNext() ) {
+				ProdCfg newProdCfgLoop = newProdCfgItr.next();
+				Iterator<ProdCfg> dbProdCfgItr = dbPrdCfgs.iterator();
+				while( dbProdCfgItr.hasNext() ) {
+					ProdCfg dbProdCfgLoop = dbProdCfgItr.next();
+					
+					if( newProdCfgLoop.getProducts().getPrdId().intValue() == 
+							dbProdCfgLoop.getProducts().getPrdId().intValue() && 
+							newProdCfgLoop.getUserGroups().getUsrGrpId().intValue() == 
+							dbProdCfgLoop.getUserGroups().getUsrGrpId().intValue()) {
+						dbProdCfgItr.remove();
+						newProdCfgItr.remove();
+						break;
+					}
+				}
+			}
+			
+			//step2 : delete the unmatched database objects
+			if( dbPrdCfgs != null && dbPrdCfgs.size() > 0 ) {
+				productDAO.deleteAllProdCfg(dbPrdCfgs);
+			}
+			
+			//step3 : save the unmatched new objects
+			if( prodCfgs != null && prodCfgs.size() > 0 ) {
+				productDAO.saveAllProdCfgs(prodCfgs);
+			}
 		}
+		
 	}
 	
 	@Transactional(readOnly = true)
@@ -148,11 +185,12 @@ public class ProductServiceImpl implements ProductService{
 	}
 
 	@Override
+	@Transactional
 	public void saveOrUpdateInvoice(Invoice invoice) {
 		genericDAO.merge(invoice);
-		for( InvoiceDetails invDetails : invoice.getInvoiceDetailses() ) {
+		/*for( InvoiceDetails invDetails : invoice.getInvoiceDetailses() ) {
 			genericDAO.merge(invDetails);
-		}
+		}*/
 	}
 	
 	@Override

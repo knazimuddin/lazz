@@ -11,17 +11,19 @@
 			var json = { "prdId" : prdId};
 			$.ajax({
 		        url: "/lazz/product/add-to-cart",
-		        data: JSON.stringify(json),
+		        headers: { 
+			        'Accept': 'application/json',
+			        'Content-Type': 'application/json' 
+			    },
+		       	data: JSON.stringify(json),
 		        type: "POST",
-		         
-		        beforeSend: function(xhr) {
-		            xhr.setRequestHeader("Accept", "application/json");
-		            xhr.setRequestHeader("Content-Type", "application/json");
-		        },
+		        contentType: 'application/json',
+  				mimeType: 'application/json',
 		        success: function(ajaxResponseModel) {
+		        	console.log(JSON.stringify(ajaxResponseModel))
 		        	if( ajaxResponseModel.statusCode == "200" ){
 		        		//TODO: need add message that product added successfully
-		        		$("#noti-icon").val(ajaxResponseModel.productCount);
+		        		$("#noti-icon").html(ajaxResponseModel.productCount);
 		        		
 		        		var ulObj = $("<ul class='header-cart-wrapitem'>");
 		        		for( x in ajaxResponseModel.productsModelList ){
@@ -35,12 +37,15 @@
 		        		$(ulObj).append("<div class='header-cart-total'>Total: RM "+ajaxResponseModel.totalAmount+"</div>"+
 		        		"<div class='header-cart-buttons'><div class='header-cart-wrapbtn'>"+
 		        		"<a href='/lazz/product/view-cart' class='flex-c-m size1 bg1 bo-rad-20 hov1 s-text1 trans-0-4'>View Cart</a></div>"+
-		        		"<div class='header-cart-wrapbtn'><a href='/lazz/product/checkout' class='flex-c-m size1 bg1 bo-rad-20 hov1 s-text1 trans-0-4'>"+
+		        		"<div class='header-cart-wrapbtn'><a href='/lazz/product/view-cart' class='flex-c-m size1 bg1 bo-rad-20 hov1 s-text1 trans-0-4'>"+
 		        		"Check Out</a></div></div>");
 		        		$("#products-cart").empty();
 		        		$("#products-cart").append(ulObj);
 		        	} 
-		        }
+		        },
+		        error:function(data,status,er) { 
+			        console.log("error: "+data+" status: "+status+" er:"+er);
+			    }
 		    });
 		}
 	</script>

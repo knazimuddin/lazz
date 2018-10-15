@@ -8,10 +8,9 @@ import com.lazz.utils.ValueO;
 public class CartWrapper {
 	private List<ProductsModel> products = new ArrayList<ProductsModel>(0);
 	private float subTotal = 0.0F;
-	private List<ValueO> shippingAddressList = new ArrayList<ValueO>(0);
 	private String selectedAddress;
-	private List<ValueO> paymentOptions = new ArrayList<ValueO>(0);
 	private String paymentOptionSelected;
+	private String shipmentOptionSelected;
 	private float total = 0.0F;
 	public List<ProductsModel> getProducts() {
 		return products;
@@ -25,23 +24,11 @@ public class CartWrapper {
 	public void setSubTotal(float subTotal) {
 		this.subTotal = subTotal;
 	}
-	public List<ValueO> getShippingAddressList() {
-		return shippingAddressList;
-	}
-	public void setShippingAddressList(List<ValueO> shippingAddressList) {
-		this.shippingAddressList = shippingAddressList;
-	}
 	public String getSelectedAddress() {
 		return selectedAddress;
 	}
 	public void setSelectedAddress(String selectedAddress) {
 		this.selectedAddress = selectedAddress;
-	}
-	public List<ValueO> getPaymentOptions() {
-		return paymentOptions;
-	}
-	public void setPaymentOptions(List<ValueO> paymentOptions) {
-		this.paymentOptions = paymentOptions;
 	}
 	public String getPaymentOptionSelected() {
 		return paymentOptionSelected;
@@ -54,6 +41,12 @@ public class CartWrapper {
 	}
 	public void setTotal(float total) {
 		this.total = total;
+	}
+	public String getShipmentOptionSelected() {
+		return shipmentOptionSelected;
+	}
+	public void setShipmentOptionSelected(String shipmentOptionSelected) {
+		this.shipmentOptionSelected = shipmentOptionSelected;
 	}
 	
 	

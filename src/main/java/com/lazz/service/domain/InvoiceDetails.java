@@ -46,7 +46,7 @@ public class InvoiceDetails implements java.io.Serializable {
 		this.invoice = invoice;
 	}
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "prd_cfg_id")
 	public ProdCfg getProdCfg() {
 		return this.prodCfg;

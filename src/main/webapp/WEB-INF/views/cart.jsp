@@ -10,7 +10,7 @@
 		function deleteProduct(prdId){
 			if( confirm("Are you sure ?")  ){
 	    		var formObj = document.getElementById("cartwrappermodel");
-	    		formObj.action = "/lazz/product/deleteprdfromcart"+prdId;
+	    		formObj.action = "/lazz/product/deleteprdfromcart/"+prdId;
 	    		formObj.method = "POST";
 	    		formObj.submit();
 	    	}
@@ -18,16 +18,21 @@
 		
 		function decrementProdCount(prdId){
 			var formObj = document.getElementById("cartwrappermodel");
-    		formObj.action = "/lazz/product/dec-prd-count"+prdId;
+    		formObj.action = "/lazz/product/dec-prd-count/"+prdId;
     		formObj.method = "POST";
     		formObj.submit();
 		}
 		
 		function incrementProdCount(prdId){
 			var formObj = document.getElementById("cartwrappermodel");
-    		formObj.action = "/lazz/product/inc-prd-count"+prdId;
+    		formObj.action = "/lazz/product/inc-prd-count/"+prdId;
     		formObj.method = "POST";
     		formObj.submit();
+		}
+		
+		function checkout(){
+			var formObj = document.getElementById("cartwrappermodel");
+			formObj.submit();
 		}
 	</script>
 </head>
@@ -37,13 +42,13 @@
 	<jsp:include page="gui-common-top-banner.jsp"></jsp:include>
 
 	<!-- Title Page -->
-	<section class="bg-title-page p-t-40 p-b-50 flex-col-c-m" style="background-image: url(<c:out value='images/heading-pages-01.jpg'/>);">
+	<section class="bg-title-page p-t-40 p-b-50 flex-col-c-m" style="background-image: url(<c:out value='/lazz/static/images/heading-pages-01.jpg'/>);">
 		<h2 class="l-text2 t-center">
 			Cart
 		</h2>
 	</section>
 
-	<form:form action="/lazz/product/createproduct" id="cartwrappermodel" modelAttribute="cartwrappermodel" method="post">
+	<form:form action="/lazz/product/checkout" id="cartwrappermodel" modelAttribute="cartwrapper" method="post">
 		<!-- Cart -->
 		<section class="cart bgwhite p-t-70 p-b-100">
 			<div class="container">
@@ -67,16 +72,15 @@
 										</div>
 									</td>
 									<td class="column-2">${prdObj.prdName}<input type="hidden" name="products[${status.index}].prdName" value="${prdObj.prdName}"/></td>
-									<td class="column-3">RM ${prdObj.prdRetailPrice}<input type="hidden" name="products[${status.index}].prdRetailPrice" value="${prdObj.prdRetailPrice}"/></td>
+									<td class="column-3">RM RM ${prdObj.prdRetailPrice}<input type="hidden" name="products[${status.index}].prdRetailPrice" value="${prdObj.prdRetailPrice}"/></td>
 									<td class="column-4">
 										<input type="hidden" name="products[${status.index}].prdId" value="${prdObj.prdId}"/>
-										<div class="flex-w bo5 of-hidden w-size17" >
+										<div class="flex-w bo5 of-hidden w-size17">
 											<button class="btn-num-product-down color1 flex-c-m size7 bg8 eff2" onclick="decrementProdCount('${prdObj.prdId}')">
 												<i class="fs-12 fa fa-minus" aria-hidden="true"></i>
 											</button>
 		
 											<input class="size8 m-text18 t-center num-product" type="number" name="num-product1" value="${prdObj.count}">
-											<input type="hidden" name="products[${status.index}].count" value="${prdObj.count}"/>
 		
 											<button class="btn-num-product-up color1 flex-c-m size7 bg8 eff2" onclick="incrementProdCount('${prdObj.prdId}')">
 												<i class="fs-12 fa fa-plus" aria-hidden="true"></i>
@@ -86,7 +90,8 @@
 									<td class="column-5">RM ${prdObj.quantityTotal}<input type="hidden" name="products[${status.index}].quantityTotal" value="${prdObj.quantityTotal}"/></td>
 									<td class="column-6 delete-prompt" onclick="deleteProduct('${prdObj.prdId}')">Delete</td>
 								</tr>
-							</c:forEach>
+							</c:forEach>	
+	
 							<!-- tr class="table-row">
 								<td class="column-1">
 									<div class="cart-img-product b-rad-4 o-f-hidden">
@@ -136,7 +141,7 @@
 						</span>
 	
 						<span class="m-text21 w-size20 w-full-sm">
-							RM ${subTotal}<input type="hidden" name="subTotal" value="${subTotal}"/>
+							RM ${cartwrapper.subTotal}<input type="hidden" name="subTotal" value="${cartwrapper.subTotal}"/>
 						</span>
 					</div>
 	
@@ -148,7 +153,14 @@
 	
 						<div class="w-size20 w-full-sm">
 							<p class="s-text8 p-b-23">
-								There are no shipping methods available. Please double check your address, or contact us if you need any help.
+								<c:if test="${not empty shippingAddressList}">
+									<form:select class="form-control select" data-live-search="true" path="shipmentOptionSelected">
+										<form:option value="NONE" label="Select a shipment option..."/>
+										<c:forEach items="${shippingAddressList}" var="obj">
+											<option value="${obj.key}">${obj.value}</option>
+										</c:forEach>
+									</form:select>
+								</c:if>	
 							</p>
 	
 							<span class="s-text19">
@@ -158,7 +170,9 @@
 							<div class="rs2-select2 rs3-select2 rs4-select2 bo4 of-hidden w-size21 m-t-8 m-b-12">
 								<form:select class="form-control select" data-live-search="true" path="paymentOptionSelected">
 									<form:option value="NONE" label="Select a delivery option..."/>
-                                    <form:options items="${paymentOptions}" itemLabel="${key}" itemValue="${value}"/>
+	                                <c:forEach items="${paymentOptions}" var="obj">
+										<option value="${obj.key}">${obj.value}</option>
+									</c:forEach>
 								</form:select>
 							</div>
 	
@@ -186,7 +200,7 @@
 						</span>
 	
 						<span class="m-text21 w-size20 w-full-sm">
-							RM ${total}<input type="hidden" name="total" value="${total}"/>
+							RM ${cartwrapper.total}<input type="hidden" name="total" value="${cartwrapper.total}"/>
 						</span>
 					</div>
 	
@@ -201,10 +215,7 @@
 		</section>
 	</form:form>
 
-
 	<jsp:include page="footer.jsp"></jsp:include>
-
-
 
 	<!-- Back to top -->
 	<div class="btn-back-to-top bg0-hov" id="myBtn">
@@ -220,14 +231,14 @@
 
 
 	<!--===============================================================================================-->
-	<script type="text/javascript" src="vendor/jquery/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="<c:out value='/lazz/static/vendor/jquery/jquery-3.2.1.min.js'/>"></script>
 	<!--===============================================================================================-->
-	<script type="text/javascript" src="vendor/animsition/js/animsition.min.js"></script>
+	<script type="text/javascript" src="<c:out value='/lazz/static/vendor/animsition/js/animsition.min.js'/>"></script>
 	<!--===============================================================================================-->
-	<script type="text/javascript" src="vendor/bootstrap/js/popper.js"></script>
-	<script type="text/javascript" src="vendor/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="<c:out value='/lazz/static/vendor/bootstrap/js/popper.js'/>"></script>
+	<script type="text/javascript" src="<c:out value='/lazz/static/vendor/bootstrap/js/bootstrap.min.js'/>"></script>
 	<!--===============================================================================================-->
-	<script type="text/javascript" src="vendor/select2/select2.min.js"></script>
+	<script type="text/javascript" src="<c:out value='/lazz/static/vendor/select2/select2.min.js'/>"></script>
 	<script type="text/javascript">
 		$(".selection-1").select2({
 			minimumResultsForSearch: 20,
@@ -238,9 +249,52 @@
 			minimumResultsForSearch: 20,
 			dropdownParent: $('#dropDownSelect2')
 		});
+		
+		function refreshCart(){
+			var json = { "prdId" : "1"};
+			$.ajax({
+		        url: "/lazz/product/refresh-cart",
+		        headers: { 
+			        'Accept': 'application/json',
+			        'Content-Type': 'application/json' 
+			    },
+		       	data: JSON.stringify(json),
+		        type: "POST",
+		        contentType: 'application/json',
+  				mimeType: 'application/json',
+		        success: function(ajaxResponseModel) {
+		        	console.log(JSON.stringify(ajaxResponseModel))
+		        	if( ajaxResponseModel.statusCode == "200" ){
+		        		//TODO: need add message that product added successfully
+		        		$("#noti-icon").html(ajaxResponseModel.productCount);
+		        		
+		        		var ulObj = $("<ul class='header-cart-wrapitem'>");
+		        		for( x in ajaxResponseModel.productsModelList ){
+		        			$(ulObj).append("<li class='header-cart-item'>"+
+		        			"<div class='header-cart-item-img'><img src='/static/images/item-cart-01.jpg' alt='IMG'></div>"+
+		        			"<div class='header-cart-item-txt'>" +
+		        			"<a href='#' class='header-cart-item-name'>"+ajaxResponseModel.productsModelList[x].prdName+""+
+		        			"<span class='header-cart-item-info'>"+ajaxResponseModel.productsModelList[x].count+""+
+		        			" X RM "+ajaxResponseModel.productsModelList[x].prdRetailPrice+"</span></div></li>");
+		        		}
+		        		$(ulObj).append("<div class='header-cart-total'>Total: RM "+ajaxResponseModel.totalAmount+"</div>"+
+		        		"<div class='header-cart-buttons'><div class='header-cart-wrapbtn'>"+
+		        		"<a href='/lazz/product/view-cart' class='flex-c-m size1 bg1 bo-rad-20 hov1 s-text1 trans-0-4'>View Cart</a></div>"+
+		        		"<div class='header-cart-wrapbtn'><a href='/lazz/product/view-cart' class='flex-c-m size1 bg1 bo-rad-20 hov1 s-text1 trans-0-4'>"+
+		        		"Check Out</a></div></div>");
+		        		$("#products-cart").empty();
+		        		$("#products-cart").append(ulObj);
+		        	} 
+		        },
+		        error:function(data,status,er) { 
+			        console.log("error: "+data+" status: "+status+" er:"+er);
+			    }
+		    });
+		}
+		refreshCart();
 	</script>
 	<!--===============================================================================================-->
-	<script src="js/main.js"></script>
+	<script src="<c:out value='/lazz/static/js/main.js'/>"></script>
 
 </body>
 

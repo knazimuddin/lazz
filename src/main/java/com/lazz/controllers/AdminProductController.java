@@ -100,13 +100,17 @@ public class AdminProductController {
 	public byte[] renderProductImage(@PathVariable(value = "prdId") String prdId, 
 			HttpServletResponse response) throws IOException {
 		byte[] imageData = null;
-		Products product = productService.getProduct(prdId);
-		String imageSource = "noimage.jpg";//TODO : get this image from Rais
-		if( !StringUtils.isEmpty(product.getPrdImgPath()) ) {
-			imageSource = AppConstants.PRD_IMG_UPLOAD_DIR + product.getPrdImgPath();
-		} 
-		InputStream in =  servletContext.getResourceAsStream(imageSource);
-	    imageData = IOUtils.toByteArray(in);
+		try {
+			Products product = productService.getProduct(prdId);
+			String imageSource = "noimage.jpg";//TODO : get this image from Rais
+			if( !StringUtils.isEmpty(product.getPrdImgPath()) ) {
+				imageSource = AppConstants.PRD_IMG_UPLOAD_DIR + product.getPrdImgPath();
+			} 
+			InputStream in =  servletContext.getResourceAsStream(imageSource);
+		    imageData = IOUtils.toByteArray(in);
+		}catch(Exception e) {
+			System.out.println(">>>> NAzim Exception from renderProductImage method. For now ignore this till GUI is fixed>>>>>>>>>");
+		}
 	    return imageData;
 	}
 	

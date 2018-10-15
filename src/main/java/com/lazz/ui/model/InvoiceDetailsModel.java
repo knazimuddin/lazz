@@ -1,4 +1,7 @@
 package com.lazz.ui.model;
+
+import com.lazz.service.domain.InvoiceDetails;
+
 // Generated Jul 22, 2018 7:33:01 PM by Hibernate Tools 5.2.10.Final
 
 /**
@@ -7,23 +10,10 @@ package com.lazz.ui.model;
 public class InvoiceDetailsModel  {
 
 	private Integer invcDtId;
-	private InvoiceModel invoice;
-	private ProdCfgModel prodCfg;
-	private ProductsModel products;
+	private Integer prdId;
+	private String prdName;
 
-	public InvoiceDetailsModel() {
-	}
-
-	public InvoiceDetailsModel(InvoiceModel invoice) {
-		this.invoice = invoice;
-	}
-
-	public InvoiceDetailsModel(InvoiceModel invoice, ProdCfgModel prodCfg, ProductsModel products) {
-		this.invoice = invoice;
-		this.prodCfg = prodCfg;
-		this.products = products;
-	}
-
+	
 	public Integer getInvcDtId() {
 		return this.invcDtId;
 	}
@@ -32,28 +22,28 @@ public class InvoiceDetailsModel  {
 		this.invcDtId = invcDtId;
 	}
 
-	public InvoiceModel getInvoice() {
-		return this.invoice;
+	public Integer getPrdId() {
+		return prdId;
 	}
 
-	public void setInvoice(InvoiceModel invoice) {
-		this.invoice = invoice;
+	public void setPrdId(Integer prdId) {
+		this.prdId = prdId;
 	}
 
-	public ProdCfgModel getProdCfg() {
-		return this.prodCfg;
+	public String getPrdName() {
+		return prdName;
 	}
 
-	public void setProdCfg(ProdCfgModel prodCfg) {
-		this.prodCfg = prodCfg;
+	public void setPrdName(String prdName) {
+		this.prdName = prdName;
 	}
 
-	public ProductsModel getProducts() {
-		return this.products;
-	}
-
-	public void setProducts(ProductsModel products) {
-		this.products = products;
+	public InvoiceDetailsModel convertDomainToModel(InvoiceDetails domain) {
+		InvoiceDetailsModel invoiceDetailsModel = new InvoiceDetailsModel();
+		invoiceDetailsModel.setInvcDtId(domain.getInvcDtId());
+		invoiceDetailsModel.setPrdId(domain.getProdCfg().getProducts().getPrdId());
+		invoiceDetailsModel.setPrdName(domain.getProdCfg().getProducts().getPrdName());
+		return invoiceDetailsModel;
 	}
 
 }
